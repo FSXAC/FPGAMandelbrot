@@ -50,11 +50,73 @@ module mandelbrot(
     );
 
     // ====== [ CONSTS ] ======
-    logic [31:0] iterations, max_distance;
+    logic [15:0] iterations, max_distance;
     assign iterations = 32'd16;
     assign max_distance = 32'd16;
 
     // ====== [ REGISTERS ] ======
-    
+    // Register connections
+    logic enx, eny, ena, enb, enn, eni, enj;
+    logic signed [31:0] x, y, a, b;
+    logic signed [31:0] x_new, y_new, a_new, b_new;
+    logic [15:0] n, i, j;
+    logic [15:0] n_new, i_new, j_new;
+
+    // Registers
+    register R0(.d(x_new), .q(x), .en(enx), .clk(clk));
+    register R1(.d(y_new), .q(y), .en(eny), .clk(clk));
+    register R2(.d(a_new), .q(a), .en(ena), .clk(clk));
+    register R3(.d(b_new), .q(b), .en(enb), .clk(clk));
+    register #(16) R4(.d(n_new), .q(n), .en(enn), .clk(clk));
+    register #(16) R5(.d(i_new), .q(i), .en(eni), .clk(clk));
+    register #(16) R6(.d(j_new), .q(j), .en(enj), .clk(clk));
+
+    // Register output & intermediate calculations
+    logic signed [31:0] aa, bb, twoab, distance;
+    assign aa = a * a;
+    assign bb = b * b;
+    assign twoab = 32'd2 * a * b;
+    assign distance = aa + bb;
+
+    // ====== [ COMBINATIONAL NEXT VALUE LOGIC ] ======
+    logic initx, inity, inita, initb, initn, initi, initj;
+
+    // x += dx
+    x_new = initx ? xmin : x + dx;
+
+    // y += dy
+    y_new = inity ? ymin : y + dy;
+
+    // a = aa - bb + x
+    a_new = inita ? x : aa - bb + x;
+
+    // b = twoab + y
+    b_new = initb ? y : twoab + y;
+
+    // n++
+    n_new = initn ? 16'd0 : n + 16'd1;
+
+    // i++
+    i_new = initi ? 16'd0 : i + 16'd1;
+
+    // j++
+    j_new = initj ? 16'd0 : j + 16'd1;
+
+    // ====== [ BOOLEAN STATE MACHINE INPUT ] ======
+    logic n_equals_iterations;
+    logic donei, donej;
+    logic dist_gt_max_dist;
+
+    assign n_equals_iterations = n_new == iterations;   // FIXME: currently using new
+    assign donei = i == 16'd319;
+    assign donej = j == 16'd239;
+    assign dist_gt_max_dist = distance > max_distance;
+
+    // ====== [ STATE MACHINE ] ======
+
+    // ====== [ VGA OUTPUT ] ======
+    assign vga_x = i[8:0];
+    assign vga_y = j[7:0];
+    assign vga_colour = n[2:0];
 
 endmodule
