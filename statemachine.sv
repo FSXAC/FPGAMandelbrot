@@ -85,7 +85,7 @@ module statemachine (
                 {initb, enb} = 2'b11;
                 {initn, enn} = 2'b11;
             end
-            ITERLOOP: {ena, enb, enn} = 3'b111;
+            ITERLOOP: {ena, enb, enn} = {2'b11, ~dist_gt_max_dist};
             PLOT: {enx, eni, plot} = 3'b111;
             ENDLOOP: {eny, enj} = 2'b11;
             DONE: done = 1'b1;

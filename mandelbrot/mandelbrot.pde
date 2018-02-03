@@ -1,8 +1,8 @@
 int kx, ky;
-int WIDTH = 320;
-int HEIGHT = 240;
+int WIDTH = 160;
+int HEIGHT = 120;
 
-boolean hsbcolor = true;
+boolean hsbcolor = false;
 
 void setup() {
     size(1280, 960);
@@ -10,18 +10,19 @@ void setup() {
     kx = width / WIDTH;
     ky = height / HEIGHT;
     println(kx, ky);
-    background(255);
+    background(0);
     noLoop();
     if (hsbcolor) colorMode(HSB, 255);
 }
 
-int iterations = 64;
+int iterations = 32;
 int maxDistSq = 16;
 boolean colored = true;
 
 void draw() {
     float w = 4;
-    float h = (w * HEIGHT) / WIDTH;
+    //float h = (w * HEIGHT) / WIDTH;
+    float h = w * 0.75;
     
     float xmin = -w/2;
     float ymin = -h/2;
@@ -33,10 +34,14 @@ void draw() {
     float dy = (ymax-ymin) / HEIGHT;
     
     // Start y
-    float y = ymin; //<>//
+    float y = ymin;
     for (int j = 0; j < HEIGHT; j++) {
         float x = xmin;
         for (int i = 0; i < WIDTH; i++) {
+            
+            if (i == 199 && j == 34) {
+                println("hi"); //<>//
+            }
             
             // Test and iterate z = z^2 + cm does z -> infty
             float a = x;

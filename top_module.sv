@@ -3,6 +3,7 @@ module top_module(
     input logic KEY[3:0],
     input logic [9:0] SW,
 
+    output logic [9:0] LEDR,
     output logic [9:0] VGA_R,
     output logic [9:0] VGA_G,
     output logic [9:0] VGA_B,
@@ -18,13 +19,15 @@ module top_module(
     logic done;
     logic start;
     logic [2:0] color;
-    logic [8:0] x;
-    logic [7:0] y;
+    logic [7:0] x;
+    logic [6:0] y;
 
     // Reset
     assign reset = KEY[3];
+    assign start = 1'b1;
 
-    vga_adapter #(.RESOLUTION("320x240")) VA(
+    // vga_adapter #(.RESOLUTION("320x240")) VA(
+    vga_adapter #(.RESOLUTION("160x120")) VA(
         .resetn(reset),
         .clock(CLOCK_50),
         .colour(color),
@@ -52,7 +55,10 @@ module top_module(
         .vga_colour(color),
         .vga_plot(plot)
     );
-
-    // Assign done signal from fillscreen to start signal of shape
-    assign start = ~KEY[2];
+    
+    // Debug lights
+    assign LEDR[6:0] = y;
+    assign LEDR[7] = plot;
+    assign LEDR[8] = done;
+    assign LEDR[9] = start;
 endmodule

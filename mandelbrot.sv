@@ -3,13 +3,16 @@
 `define INT(n) n[31:22]
 `define FRAC(n) n[21:0]
 
+`define WIDTH 16'd160
+`define HEIGHT 16'd120
+
 module mandelbrot(
     input logic clk,
     input logic rstn,
     input logic start,
     output logic done,
-    output logic [8:0] vga_x,
-    output logic [7:0] vga_y,
+    output logic [7:0] vga_x,
+    output logic [6:0] vga_y,
     output logic [2:0] vga_colour,
     output logic vga_plot
 );
@@ -38,23 +41,25 @@ module mandelbrot(
     // dx = 0.003125 * (xmax - xmin)
     multiplier M_DX(
         .a(xmax - xmin),
-        .b({10'b0, 22'b0000000011001100110011}),
+        // .b({10'b0, 22'b0000000011001100110011}), // 1/320
+        .b({10'b0, 22'b0000000110011001100110}),  // 1/160
         .out(dx)
     );
 
     // dy = 0.0041666666... * (ymax - ymin)
     multiplier M_DY(
         .a(ymax - ymin),
-        .b({10'b0, 22'b0000000100010001000100}),
+        // .b({10'b0, 22'b0000000100010001000100}), // 1/240
+        .b({10'b0, 22'b0000001000100010001000}),  // 1/120
         .out(dy)
     );
 
     // ====== [ CONSTS ] ======
     logic [15:0] iterations;
-    assign iterations = 32'd16;
+    assign iterations = 16'd32;
 
     logic signed [31:0] max_distance;
-    assign max_distance = {10'b10000, 22'b0};
+    assign max_distance = {10'd16, 22'b0};
 
     // ====== [ REGISTERS ] ======
     // Register connections
@@ -105,13 +110,13 @@ module mandelbrot(
     assign b_new = initb ? y : twoab + y;
 
     // n++
-    assign n_new = initn ? 16'b0 : n + 16'b1;
+    assign n_new = initn ? 16'd0 : n + 16'd1;
 
     // i++
-    assign i_new = initi ? 16'b0 : i + 1;
+    assign i_new = initi ? 16'd0 : i + 16'd1;
 
     // j++
-    assign j_new = initj ? 16'b0 : j + 16'b1;
+    assign j_new = initj ? 16'd0 : j + 16'd1;
 
     // ====== [ BOOLEAN STATE MACHINE INPUT ] ======
     logic n_equals_iterations;
@@ -121,8 +126,8 @@ module mandelbrot(
 
     assign n_equals_iterations = n_new == iterations;   // FIXME: currently using new
     assign n_lt_iterations = n_new < iterations;
-    assign donei = i_new == 16'd319;
-    assign donej = j_new == 16'd239;
+    assign donei = i_new == `WIDTH;
+    assign donej = j_new == `HEIGHT;
     assign dist_gt_max_dist = distance > max_distance;  // FIXME: comparison is wrong
 
     // ====== [ STATE MACHINE ] ======
@@ -158,8 +163,8 @@ module mandelbrot(
     );
 
     // ====== [ VGA OUTPUT ] ======
-    assign vga_x = i[8:0];
-    assign vga_y = j[7:0];
+    assign vga_x = i[7:0];
+    assign vga_y = j[6:0];
     assign vga_colour = n_equals_iterations ? 3'b000 : n[2:0];
 
 endmodule
