@@ -19,5 +19,5 @@ module mandelbrot(
 
     // Computing the combination const values
     assign w = {10'd4, 22'b0};
-    assign h = 
+    // assign h = 
 endmodule
