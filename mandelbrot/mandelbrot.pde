@@ -83,7 +83,6 @@ void draw() {
         }
         y += dy;
     }
-                
 }
 
 void pixel(int x, int y) {

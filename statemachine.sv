@@ -6,6 +6,7 @@ module statemachine (
 
     // conditions
     input logic n_equals_iterations,
+    input logic n_lt_iterations,
     input logic donei,
     input logic donej,
     input logic dist_gt_max_dist,
@@ -50,7 +51,7 @@ module statemachine (
             INIT: next = JLOOP;
             JLOOP: next = ILOOP;
             ILOOP: next = ITERLOOP;
-            ITERLOOP: next = dist_gt_max_dist ? PLOT : ITERLOOP;
+            ITERLOOP: next = (dist_gt_max_dist | ~n_lt_iterations) ? PLOT : ITERLOOP;
             PLOT: next = donei ? ENDLOOP : ILOOP;
             ENDLOOP: next = donej ? DONE : JLOOP;
             DONE: next = DONE;
@@ -72,17 +73,21 @@ module statemachine (
         // Turn selective signals on based on state
         case (current)
             INIT: begin
-                {inity, initi, initj} = 3'b111;
-                {eny, eni, enj} = 3'b111;
+                {inity, eny} = 2'b11;
+                {initj, enj} = 2'b11;
             end
-            JLOOP: {initx, enx} = 2'b11;
+            JLOOP: begin
+                {initx, enx} = 2'b11;
+                {initi, eni} = 2'b11;
+            end
             ILOOP: begin
-                {inita, initb, initn} = 3'b111;
-                {ena, enb, enn} = 3'b111;
+                {inita, ena} = 2'b11;
+                {initb, enb} = 2'b11;
+                {initn, enn} = 2'b11;
             end
             ITERLOOP: {ena, enb, enn} = 3'b111;
-            PLOT: {enx, plot} = 2'b11;
-            ENDLOOP: eny = 1'b1;
+            PLOT: {enx, eni, plot} = 3'b111;
+            ENDLOOP: {eny, enj} = 2'b11;
             DONE: done = 1'b1;
             default: done = 1'b0;
         endcase

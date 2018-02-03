@@ -36,23 +36,25 @@ module mandelbrot(
     assign ymax = ymin + h;
 
     // dx = 0.003125 * (xmax - xmin)
-    multiplier M1(
+    multiplier M_DX(
         .a(xmax - xmin),
         .b({10'b0, 22'b0000000011001100110011}),
         .out(dx)
     );
 
     // dy = 0.0041666666... * (ymax - ymin)
-    multiplier M2(
+    multiplier M_DY(
         .a(ymax - ymin),
         .b({10'b0, 22'b0000000100010001000100}),
         .out(dy)
     );
 
     // ====== [ CONSTS ] ======
-    logic [15:0] iterations, max_distance;
+    logic [15:0] iterations;
     assign iterations = 32'd16;
-    assign max_distance = 32'd16;
+
+    logic signed [31:0] max_distance;
+    assign max_distance = {10'b10000, 22'b0};
 
     // ====== [ REGISTERS ] ======
     // Register connections
@@ -71,11 +73,20 @@ module mandelbrot(
     register #(16) REG_I(.d(i_new), .q(i), .en(eni), .clk(clk));
     register #(16) REG_J(.d(j_new), .q(j), .en(enj), .clk(clk));
 
-    // Register output & intermediate calculations
-    logic signed [31:0] aa, bb, twoab, distance;
-    assign aa = a * a;
-    assign bb = b * b;
-    assign twoab = 32'd2 * a * b;
+    // ====== [ LOOP INTERMEDIATE CALC ] ======
+    logic signed [31:0] aa, bb, ab, twoab, distance;
+    
+    // aa = a * a
+    multiplier M_AA(.a(a), .b(a), .out(aa));
+
+    // bb = b * b
+    multiplier M_BB(.a(b), .b(b), .out(bb));
+
+    // twoab = 2 * a * b = 2 * ab
+    multiplier M_AB(.a(a), .b(b), .out(ab));
+    assign twoab = 32'd2 * ab;
+
+    // distance = aa + bb
     assign distance = aa + bb;
 
     // ====== [ COMBINATIONAL NEXT VALUE LOGIC ] ======
@@ -94,23 +105,25 @@ module mandelbrot(
     assign b_new = initb ? y : twoab + y;
 
     // n++
-    assign n_new = initn ? 16'd0 : n + 16'd1;
+    assign n_new = initn ? 16'b0 : n + 16'b1;
 
     // i++
-    assign i_new = initi ? 16'd0 : i + 16'd1;
+    assign i_new = initi ? 16'b0 : i + 1;
 
     // j++
-    assign j_new = initj ? 16'd0 : j + 16'd1;
+    assign j_new = initj ? 16'b0 : j + 16'b1;
 
     // ====== [ BOOLEAN STATE MACHINE INPUT ] ======
     logic n_equals_iterations;
+    logic n_lt_iterations;
     logic donei, donej;
     logic dist_gt_max_dist;
 
     assign n_equals_iterations = n_new == iterations;   // FIXME: currently using new
-    assign donei = i == 16'd319;
-    assign donej = j == 16'd239;
-    assign dist_gt_max_dist = distance > max_distance;
+    assign n_lt_iterations = n_new < iterations;
+    assign donei = i_new == 16'd319;
+    assign donej = j_new == 16'd239;
+    assign dist_gt_max_dist = distance > max_distance;  // FIXME: comparison is wrong
 
     // ====== [ STATE MACHINE ] ======
     statemachine SM(
@@ -119,6 +132,7 @@ module mandelbrot(
         .start(start),
 
         .n_equals_iterations(n_equals_iterations),
+        .n_lt_iterations(n_lt_iterations),
         .donei(donei),
         .donej(donej),
         .dist_gt_max_dist(dist_gt_max_dist),
