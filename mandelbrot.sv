@@ -18,19 +18,19 @@ module mandelbrot(
     logic signed [31:0] w, h, xmin, xmax, ymin, ymax, dx, dy;
 
     // Computing the combination const values
-    assign w = {10'd4, 22'b0};
+    assign w = {10'd4, 22'b0};  // TODO: Hook up to zoom control
 
     // h = w * 0.75
     multiplier M0(.a(w), .b({10'b0, 2'b11, 20'b0}), .out(h));
 
     // xmin = w * -0.5 = w / 2 * -1
-    assign xmin = (w >> 1) * ~(32'b0);
+    assign xmin = (w >> 1) * ~(32'b0);  // TODO: Hook up to horizontal control
 
     // xmax = xmin + w
     assign xmax = xmin + w;
 
     // ymin = h * -0.5 = h / 2 * -1
-    assign ymin = (h >> 1) * ~(32'b0);
+    assign ymin = (h >> 1) * ~(32'b0);  // TODO: Hook up to vertical control
 
     // ymax = ymin + h
     assign ymax = ymin + h;
@@ -63,13 +63,13 @@ module mandelbrot(
     logic [15:0] n_new, i_new, j_new;
 
     // Registers
-    register R0(.d(x_new), .q(x), .en(enx), .clk(clk));
-    register R1(.d(y_new), .q(y), .en(eny), .clk(clk));
-    register R2(.d(a_new), .q(a), .en(ena), .clk(clk));
-    register R3(.d(b_new), .q(b), .en(enb), .clk(clk));
-    register #(16) R4(.d(n_new), .q(n), .en(enn), .clk(clk));
-    register #(16) R5(.d(i_new), .q(i), .en(eni), .clk(clk));
-    register #(16) R6(.d(j_new), .q(j), .en(enj), .clk(clk));
+    register REG_X(.d(x_new), .q(x), .en(enx), .clk(clk));
+    register REG_Y(.d(y_new), .q(y), .en(eny), .clk(clk));
+    register REG_A(.d(a_new), .q(a), .en(ena), .clk(clk));
+    register REG_B(.d(b_new), .q(b), .en(enb), .clk(clk));
+    register #(16) REG_N(.d(n_new), .q(n), .en(enn), .clk(clk));
+    register #(16) REG_I(.d(i_new), .q(i), .en(eni), .clk(clk));
+    register #(16) REG_J(.d(j_new), .q(j), .en(enj), .clk(clk));
 
     // Register output & intermediate calculations
     logic signed [31:0] aa, bb, twoab, distance;
@@ -113,10 +113,39 @@ module mandelbrot(
     assign dist_gt_max_dist = distance > max_distance;
 
     // ====== [ STATE MACHINE ] ======
+    statemachine SM(
+        .clk(clk),
+        .rst(rstn),
+        .start(start),
+
+        .n_equals_iterations(n_equals_iterations),
+        .donei(donei),
+        .donej(donej),
+        .dist_gt_max_dist(dist_gt_max_dist),
+
+        .enx(enx),
+        .eny(eny),
+        .ena(ena),
+        .enb(enb),
+        .enn(enn),
+        .eni(eni),
+        .enj(enj),
+
+        .initx(initx),
+        .inity(inity),
+        .inita(inita),
+        .initb(initb),
+        .initn(initn),
+        .initi(initi),
+        .initj(initj),
+
+        .plot(vga_plot),
+        .done(done)
+    );
 
     // ====== [ VGA OUTPUT ] ======
     assign vga_x = i[8:0];
     assign vga_y = j[7:0];
-    assign vga_colour = n[2:0];
+    assign vga_colour = n_equals_iterations ? 3'b000 : n[2:0];
 
 endmodule
