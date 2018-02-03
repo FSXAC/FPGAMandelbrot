@@ -1,6 +1,6 @@
 int kx, ky;
-int WIDTH = 160;
-int HEIGHT = 120;
+int WIDTH = 320;
+int HEIGHT = 240;
 
 boolean hsbcolor = false;
 
@@ -16,16 +16,17 @@ void setup() {
 }
 
 int iterations = 32;
-int maxDistSq = 16;
+int maxDistSq = 24;
 boolean colored = true;
 
 void draw() {
-    float w = 4;
+    float w = 2;
     //float h = (w * HEIGHT) / WIDTH;
     float h = w * 0.75;
     
-    float xmin = -w/2;
-    float ymin = -h/2;
+    float xmin = -(w+0.5)/2;
+    float ymin = -(h)/2;
+    println(xmin, ymin);
     
     float xmax = xmin + w;
     float ymax = ymin + h;
@@ -88,6 +89,10 @@ void draw() {
         }
         y += dy;
     }
+    stroke(255, 0, 0);
+    strokeWeight(1);
+    line(width/2, 0, width/2, height);
+    line(0, height/2, width, height/2);
 }
 
 void pixel(int x, int y) {

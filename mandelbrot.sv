@@ -19,6 +19,11 @@ module mandelbrot(
     input logic start,
     output logic done,
 
+    // Zoom and position control
+    input logic [2:0] zoom_level,
+    input logic [2:0] h_offset_level,
+    input logic [2:0] v_offset_level,
+
     `ifdef HIGH_RES
     output logic [8:0] vga_x,
     output logic [7:0] vga_y,
@@ -33,21 +38,57 @@ module mandelbrot(
 
     // ======= [ COMB CONST & COMB CONST COMPUTATIONS ] =======
     logic signed [31:0] w, h, xmin, xmax, ymin, ymax, dx, dy;
+    logic signed [31:0] h_offset, v_offset;
 
     // Computing the combination const values
-    assign w = {10'd4, 22'b0};  // TODO: Hook up to zoom control
+    always_comb begin
+        case (zoom_level)
+            3'b000: w = {10'd10, 22'b0};        // 10
+            3'b001: w = {10'd4, 22'b0};         // 4
+            3'b010: w = {10'd2, 22'b0};         // 2
+            3'b011: w = {10'd1, 22'b0};         // 1
+            3'b100: w = {10'b0, 2'b11, 20'b0};  // 0.75
+            3'b101: w = {10'b0, 1'b1, 21'b0};   // 0.5
+            3'b110: w = {10'b0, 3'b011, 19'b0}; // 0.375
+            3'b111: w = {10'b0, 2'b01, 20'b0};  // 0.25
+        endcase
+    end
 
     // h = w * 0.75
     multiplier M0(.a(w), .b({10'b0, 2'b11, 20'b0}), .out(h));
 
-    // xmin = w * -0.5 = w / 2 * -1
-    assign xmin = (w >> 1) * ~(32'b0);  // TODO: Hook up to horizontal control
+    // xmin = (w + offset) * -0.5 = (w + offset) / 2 * -1
+    always_comb begin
+        case (h_offset_level)
+            3'b000: h_offset = {10'd3, 1'b1, 21'b0};           // 3.5
+            3'b001: h_offset = {10'd2, 2'b11, 20'b0};          // 2.75
+            3'b010: h_offset = {10'd2, 22'b0};                 // 2
+            3'b011: h_offset = {10'd1, 1'b1, 22'b0};           // 1.5
+            3'b100: h_offset = {10'd1, 22'b0};                 // 1
+            3'b101: h_offset = {10'd0, 2'b01, 20'b0};          // 0.25
+            3'b110: h_offset = {10'd0, 22'b0};                 // 0
+            3'b111: h_offset = {10'b1111111111, 1'b1, 21'b0};  // -0.5
+        endcase
+    end
+    assign xmin = ((w + h_offset) >> 1) * ~(32'b0);
 
     // xmax = xmin + w
     assign xmax = xmin + w;
 
-    // ymin = h * -0.5 = h / 2 * -1
-    assign ymin = (h >> 1) * ~(32'b0);  // TODO: Hook up to vertical control
+    // ymin = (h + offset) * -0.5 = (h + offset) / 2 * -1
+    always_comb begin
+        case (v_offset_level)
+            3'b000: v_offset = {10'd2, 22'b0};                  // 2
+            3'b001: v_offset = {10'd1, 1'b1, 21'b0};            // 1.5
+            3'b010: v_offset = {10'd1, 22'b0};                  // 1
+            3'b011: v_offset = {10'd0, 1'b1, 22'b0};            // 0.5
+            3'b100: v_offset = {10'd0, 22'b0};                  // 0
+            3'b101: v_offset = {10'b1111111111, 1'b1, 21'b0};   // -0.5
+            3'b110: v_offset = {10'b1111111111, 22'b0};         // -1
+            3'b111: v_offset = {10'b1111111110, 1'b1, 21'b0};   // -1.5
+        endcase
+    end
+    assign ymin = ((h + v_offset) >> 1) * ~(32'b0);
 
     // ymax = ymin + h
     assign ymax = ymin + h;

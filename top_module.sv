@@ -76,6 +76,11 @@ module top_module(
         .rstn(reset),
         .start(start),
         .done(done),
+
+        .zoom_level(SW[2:0]),
+        .h_offset_level(SW[5:3]),
+        .v_offset_level(SW[8:6]),
+
         .vga_x(x),
         .vga_y(y),
         .vga_colour(color),
