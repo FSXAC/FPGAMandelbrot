@@ -82,25 +82,25 @@ module mandelbrot(
     logic initx, inity, inita, initb, initn, initi, initj;
 
     // x += dx
-    x_new = initx ? xmin : x + dx;
+    assign x_new = initx ? xmin : x + dx;
 
     // y += dy
-    y_new = inity ? ymin : y + dy;
+    assign y_new = inity ? ymin : y + dy;
 
     // a = aa - bb + x
-    a_new = inita ? x : aa - bb + x;
+    assign a_new = inita ? x : aa - bb + x;
 
     // b = twoab + y
-    b_new = initb ? y : twoab + y;
+    assign b_new = initb ? y : twoab + y;
 
     // n++
-    n_new = initn ? 16'd0 : n + 16'd1;
+    assign n_new = initn ? 16'd0 : n + 16'd1;
 
     // i++
-    i_new = initi ? 16'd0 : i + 16'd1;
+    assign i_new = initi ? 16'd0 : i + 16'd1;
 
     // j++
-    j_new = initj ? 16'd0 : j + 16'd1;
+    assign j_new = initj ? 16'd0 : j + 16'd1;
 
     // ====== [ BOOLEAN STATE MACHINE INPUT ] ======
     logic n_equals_iterations;
