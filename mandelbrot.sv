@@ -3,16 +3,30 @@
 `define INT(n) n[31:22]
 `define FRAC(n) n[21:0]
 
+`define HIGH_RES
+
+`ifdef HIGH_RES
+`define WIDTH 16'd320
+`define HEIGHT 16'd240
+`else
 `define WIDTH 16'd160
 `define HEIGHT 16'd120
+`endif
 
 module mandelbrot(
     input logic clk,
     input logic rstn,
     input logic start,
     output logic done,
+
+    `ifdef HIGH_RES
+    output logic [8:0] vga_x,
+    output logic [7:0] vga_y,
+    `else
     output logic [7:0] vga_x,
     output logic [6:0] vga_y,
+    `endif
+
     output logic [2:0] vga_colour,
     output logic vga_plot
 );
@@ -41,16 +55,26 @@ module mandelbrot(
     // dx = 0.003125 * (xmax - xmin)
     multiplier M_DX(
         .a(xmax - xmin),
-        // .b({10'b0, 22'b0000000011001100110011}), // 1/320
+
+        `ifdef HIGH_RES
+        .b({10'b0, 22'b0000000011001100110011}), // 1/320
+        `else
         .b({10'b0, 22'b0000000110011001100110}),  // 1/160
+        `endif
+
         .out(dx)
     );
 
     // dy = 0.0041666666... * (ymax - ymin)
     multiplier M_DY(
         .a(ymax - ymin),
-        // .b({10'b0, 22'b0000000100010001000100}), // 1/240
+        
+        `ifdef HIGH_RES
+        .b({10'b0, 22'b0000000100010001000100}), // 1/240
+        `else
         .b({10'b0, 22'b0000001000100010001000}),  // 1/120
+        `endif
+
         .out(dy)
     );
 
@@ -124,11 +148,11 @@ module mandelbrot(
     logic donei, donej;
     logic dist_gt_max_dist;
 
-    assign n_equals_iterations = n_new == iterations;   // FIXME: currently using new
+    assign n_equals_iterations = n_new == iterations;
     assign n_lt_iterations = n_new < iterations;
     assign donei = i_new == `WIDTH;
     assign donej = j_new == `HEIGHT;
-    assign dist_gt_max_dist = distance > max_distance;  // FIXME: comparison is wrong
+    assign dist_gt_max_dist = distance > max_distance;
 
     // ====== [ STATE MACHINE ] ======
     statemachine SM(
@@ -163,8 +187,13 @@ module mandelbrot(
     );
 
     // ====== [ VGA OUTPUT ] ======
+    `ifdef HIGH_RES
+    assign vga_x = i[8:0];
+    assign vga_y = j[7:0];
+    `else
     assign vga_x = i[7:0];
     assign vga_y = j[6:0];
+    `endif
     assign vga_colour = n_equals_iterations ? 3'b000 : n[2:0];
 
 endmodule

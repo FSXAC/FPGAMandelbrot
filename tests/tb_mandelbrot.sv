@@ -1,8 +1,16 @@
+`define HIGH_RES
+
 module tb_mandelbrot();
     reg clk, rst, start;
     reg done;
+
+    `ifdef HIGH_RES
     reg [8:0] vga_x;
     reg [7:0] vga_y;
+    `else
+    reg [7:0] vga_x;
+    reg [6:0] vga_y;
+    `endif
     reg [2:0] vga_colour;
     reg vga_plot;
 

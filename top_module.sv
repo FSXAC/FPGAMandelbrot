@@ -1,3 +1,5 @@
+`define HIGH_RES
+
 module top_module(
     input logic CLOCK_50,
     input logic KEY[3:0],
@@ -19,14 +21,37 @@ module top_module(
     logic done;
     logic start;
     logic [2:0] color;
+
+    `ifdef HIGH_RES
+    logic [8:0] x;
+    logic [7:0] y;
+    `else
     logic [7:0] x;
     logic [6:0] y;
+    `endif
 
     // Reset
     assign reset = KEY[3];
     assign start = 1'b1;
 
-    // vga_adapter #(.RESOLUTION("320x240")) VA(
+    `ifdef HIGH_RES
+    vga_adapter #(.RESOLUTION("320x240")) VA(
+        .resetn(reset),
+        .clock(CLOCK_50),
+        .colour(color),
+        .x(x),
+        .y(y),
+        .plot(plot),
+        .VGA_R(VGA_R),
+        .VGA_G(VGA_G),
+        .VGA_B(VGA_B),
+        .VGA_HS(VGA_HS),
+        .VGA_VS(VGA_VS),
+        .VGA_BLANK(VGA_BLANK),
+        .VGA_SYNC(VGA_SYNC),
+        .VGA_CLK(VGA_CLK)
+    );
+    `else
     vga_adapter #(.RESOLUTION("160x120")) VA(
         .resetn(reset),
         .clock(CLOCK_50),
@@ -43,6 +68,7 @@ module top_module(
         .VGA_SYNC(VGA_SYNC),
         .VGA_CLK(VGA_CLK)
     );
+    `endif
 
     // Mandelbrot module
     mandelbrot MB(
@@ -57,8 +83,11 @@ module top_module(
     );
     
     // Debug lights
+    `ifdef HIGH_RES
+    assign LEDR[7:0] = y;
+    `else
     assign LEDR[6:0] = y;
-    assign LEDR[7] = plot;
-    assign LEDR[8] = done;
-    assign LEDR[9] = start;
+    `endif
+    assign LEDR[8] = plot;
+    assign LEDR[9] = done;
 endmodule
