@@ -52,10 +52,13 @@ Have fun.
 ## Sample
 
 Here are some photos of the monitor (because I don't know how to capture directly from hardware ;_;). The following is the fractal centered around (0, 0) with zoom level set to 2.5x.
+
 ![1](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/0.jpg)
 
-Zoomed out:
+Zoomed out
+
 ![2](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/1.jpg)
 
 And zoomed in centered at (-2.75, 0) with a zoom level of 40x.
+
 ![3](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/2.jpg)
