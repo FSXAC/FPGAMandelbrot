@@ -2,7 +2,7 @@ int kx, ky;
 int WIDTH = 320;
 int HEIGHT = 240;
 
-boolean hsbcolor = false;
+boolean hsbcolor = true;
 
 void setup() {
     size(1280, 960);
@@ -20,11 +20,10 @@ int maxDistSq = 24;
 boolean colored = true;
 
 void draw() {
-    float w = 2;
-    //float h = (w * HEIGHT) / WIDTH;
-    float h = w * 0.75;
+    float w = 4;
+    float h = (w * HEIGHT) / WIDTH;
     
-    float xmin = -(w+0.5)/2;
+    float xmin = -(w+0.25)/2;
     float ymin = -(h)/2;
     println(xmin, ymin);
     
@@ -38,11 +37,7 @@ void draw() {
     float y = ymin;
     for (int j = 0; j < HEIGHT; j++) {
         float x = xmin;
-        for (int i = 0; i < WIDTH; i++) {
-            
-            if (i == 199 && j == 34) {
-                println("hi"); //<>//
-            }
+        for (int i = 0; i < WIDTH; i++) { //<>//
             
             // Test and iterate z = z^2 + cm does z -> infty
             float a = x;
@@ -89,10 +84,10 @@ void draw() {
         }
         y += dy;
     }
-    stroke(255, 0, 0);
-    strokeWeight(1);
-    line(width/2, 0, width/2, height);
-    line(0, height/2, width, height/2);
+    //stroke(255, 0, 0);
+    //strokeWeight(1);
+    //line(width/2, 0, width/2, height);
+    //line(0, height/2, width, height/2);
 }
 
 void pixel(int x, int y) {

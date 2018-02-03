@@ -1,37 +1,48 @@
-## Welcome to GitHub Pages
+## Mandelbrot Set
 
-You can use the [editor on GitHub](https://github.com/FSXAC/FPGAMandelbrot/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+The Mandelbrot set produces a fractal and is a set of complex numbers for which a (particular function)[https://en.wikipedia.org/wiki/Mandelbrot_set] does not converge for some iterations. 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## FPGA
 
-### Markdown
+This project is made on the FPGA development board DE1-SoC; Written in SystemVerilog; compiled and tested in Quartus 17 and ModelSim.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### VGA Core
 
-```markdown
-Syntax highlighted code block
+The VGA core is from University of Toronto, source is (here)[http://www.eecg.utoronto.ca/~jayar/ece241_07F/vga/]. The VGA core supports either 160x120 or 320x240.
 
-# Header 1
-## Header 2
-### Header 3
+For this project, I went with 320x240 (although I have compiler directives for using 160x120). Because of the higher resolution, colors are only limited to 3 bits or 8 different colors.
 
-- Bulleted
-- List
+## Requirements
 
-1. Numbered
-2. List
+DE1-SoC FPGA development board, compiler and toolchains for synthesizing SystemVerilog, and a VGA compatible monitor with cables.
 
-**Bold** and _Italic_ and `Code` text
+## Usage
 
-[Link](url) and ![Image](src)
-```
+### Compile and Load
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+- Create new project in Quartus New Project Wizard and add all the non testbench Verilog files
+- Select hardware `5CSEMA5F31C6N`
+- Import pin assignmnet from `DE1-SoC.qsf`
+- Compile
+- Load the bitstream `output_files/top_module.sof` to FPGA via programmer
 
-### Jekyll Themes
+### Interactions
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/FSXAC/FPGAMandelbrot/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+The leftmost pushbutton (`KEY[3]`) is used for reset. Push this to refresh the screen.
 
-### Support or Contact
+There are 3 switches to control the zoom, 3 switches to control horizontal offset, and 3 switches to control the vertical offset. SW2 to SW0 controls the zoom. SW5 to SW3 controls horizontal offset. And SW8 to SW6 controls the vertical offset.
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+The mapping of the switches are as follows:
+
+| Switches | Zoom          | H. Offset | V. Offset |
+| -------- | ------------- | --------- | --------- |
+| 000      | 10 (1x)       | +3.5      | +2        |
+| 001      | 4 (2.5x)      | +2.75     | +1.5      |
+| 010      | 2 (5x)        | +2        | +1        |
+| 011      | 1 (10x)       | +1.5      | +0.5      |
+| 100      | 0.75 (13.3x)  | +1        | **0**     |
+| 101      | 0.5 (20x)     | +0.25     | -0.5      |
+| 110      | 0.325 (30.8x) | **0**     | -1        |
+| 111      | 0.25 (40x)    | -0.5      | -1.5      |
+
+Have fun.
