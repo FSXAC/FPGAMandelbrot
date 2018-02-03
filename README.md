@@ -1,6 +1,8 @@
 ## Mandelbrot Set
 
-The Mandelbrot set produces a fractal and is a set of complex numbers for which a (particular function)[https://en.wikipedia.org/wiki/Mandelbrot_set] does not converge for some iterations. 
+The Mandelbrot set produces a fractal and is a set of complex numbers for which a [particular function](https://en.wikipedia.org/wiki/Mandelbrot_set) does not converge for some iterations.
+
+![fractal](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/hslcolored.JPG)
 
 ## FPGA
 
@@ -8,7 +10,7 @@ This project is made on the FPGA development board DE1-SoC; Written in SystemVer
 
 ### VGA Core
 
-The VGA core is from University of Toronto, source is (here)[http://www.eecg.utoronto.ca/~jayar/ece241_07F/vga/]. The VGA core supports either 160x120 or 320x240.
+The VGA core is from University of Toronto, source is [here](http://www.eecg.utoronto.ca/~jayar/ece241_07F/vga/). The VGA core supports either 160x120 or 320x240.
 
 For this project, I went with 320x240 (although I have compiler directives for using 160x120). Because of the higher resolution, colors are only limited to 3 bits or 8 different colors.
 
@@ -46,3 +48,14 @@ The mapping of the switches are as follows:
 | 111      | 0.25 (40x)    | -0.5      | -1.5      |
 
 Have fun.
+
+## Sample
+
+Here are some photos of the monitor (because I don't know how to capture directly from hardware ;_;). The following is the fractal centered around (0, 0) with zoom level set to 2.5x.
+![1](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/0.jpg)
+
+Zoomed out:
+![2](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/1.jpg)
+
+And zoomed in centered at (-2.75, 0) with a zoom level of 40x.
+![3](https://raw.githubusercontent.com/FSXAC/FPGAMandelbrot/master/docs/2.jpg)
